@@ -5,7 +5,7 @@ using namespace std;
 // 동전 0 #11047
 
 stack<int> stk;
-int n,k,a;
+int n,k,a, count = 0;
 
 int main(){
     cin >> n >> k;
@@ -14,13 +14,10 @@ int main(){
         stk.push(a);
     }
 
-    int count = 0;
     while(k > 0){
-        if(stk.top() > k) stk.pop();
-        else{
-            count += k / stk.top();
-            k = k % stk.top();
-        }
+        count += k / stk.top();
+        k = k % stk.top();
+        stk.pop();
     }
 
     cout << count;
