@@ -4,39 +4,28 @@ using namespace std;
 
 // 칸토어 집합 #4779
 
-string div(string str){
-    if(str.size() == 1) return "-";
-
-    string result;
-    int size = str.size() / 3;
-
-    string s1 = str.substr(0,size);
-    string s2;
-    for(int i = 0; i < size ; i++){
-        s2.append(" ");
-    }
-    string s3 = str.substr(str.size() - size);
-
-    if(s1.size() != 1){
-        s1 = div(s1);
-        s3 = div(s3);
-    }
+string cut(string l){
+    if(l.length() == 1) return l;   // 길이가 1이면 그대로 return
     
-    result = s1 + s2 + s3;
-    return result;
+    int len = l.length()/3;         // 1/3 길이
+    string line1,line2,line3;       // 3개의 선으로 나누기
+    
+    line1 = l.substr(0,len);        // 선1은 원래 선의 1/3 가져오기
+    line1 = cut(line1);             // 선1을 다시 cut() 호출 => 길이가 1될 때까지 계속 자르다가 돌아옴
+    line2.resize(len,' ');          // 선2는 1/3 만큼 공백
+    line3 = line1;                  // 선3은 선1 과 똑같음
+    
+    l = line1 + line2 + line3;      // 합쳐서 l return;
+    return l;
 }
 
 int main(){
+    string line = "";
     int n;
-    while(cin >> n){
-        string str = "";
 
-        for(int i = 0 ; i < pow(3,n) ; i++){
-            str.append("-");
-        }
+    while(cin>>n){
+        line.resize(pow(3,n),'-');  // 3의 n제곱 만큼 길이 초기화
 
-        cout << div(str) << "\n";
+        cout << cut(line) << "\n";  // 자르고 출력
     }
-
-    return 0;
 }
