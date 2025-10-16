@@ -1,90 +1,88 @@
 #include<iostream>
-#include<vector>
 #include<queue>
+#include<tuple>
 using namespace std;
 
 // 쉬운 최단거리 #14940
 
-int n,m,q;
-int x,y;
-vector<vector<int>> bfs;
-vector<vector<bool>> visited;
+int n, m, tx, ty, type;
+int arr[1001][1001];
+bool visit[1001][1001];
+int dx[] = {1,0,-1,0};
+int dy[] = {0,1,0,-1};
 
-int dx[] = {1,-1,0,0};
-int dy[] = {0,0,1,-1};
+void bfs(int x, int y){
+    queue<tuple<int,int,int>> que;              // {x좌표, y좌표, 깊이}
 
-void BFS(int x, int y){
+    que.push({x,y,0});                          // 시작 위치와 깊이 넣기
+    
+    while(!que.empty()){                        // 작업이 없을 때 까지
 
-    // 대기열
-    queue<pair<pair<int,int>,int>> que;
-
-    // 시작작 좌표 방문
-    visited[x][y] = true;
-    bfs[x][y] = 0;
-
-    // 시작 좌표 대기열에 추가
-    que.push({{x,y},0});
-
-    while(!que.empty()){
-        // <좌표,깊이>
-        pair<pair<int,int>,int> temp = que.front();
+        // que 맨 앞 작업 꺼내서
+        tuple<int,int,int> temp = que.front();
         que.pop();
 
-        // 현재 좌표랑 깊이
-        int curX = temp.first.first;
-        int curY = temp.first.second;
-        int depth = temp.second;
+        // 데이터 가져옴
+        int posX = get<0>(temp);
+        int posY = get<1>(temp);
+        int depth = get<2>(temp);
 
-        // 상하좌우 방문
+        arr[posX][posY] = depth;        // 현재 위치에 깊이 저장
+
+        // 상하좌우 탐색
         for(int i = 0 ; i < 4 ; i++){
-            int posX = curX + dx[i];    // 이동할 X좌표
-            int posY = curY + dy[i];    // 이동할 Y좌표
 
-            if(posX < 0 || posX >= n || posY < 0 || posY >= m) continue;    // 맵 초과
-            if(visited[posX][posY]) continue;                               // 방문한 노드일 때
-            if(bfs[posX][posY] == -1) continue;                             // 벽일 때
+            // 다음 위치
+            int nextX = posX + dx[i];
+            int nextY = posY + dy[i];
 
-            // 현재 좌표 방문
-            visited[posX][posY] = true;
+            // 필터 조건        
+            if(nextX > n || nextX < 0 || nextY > m || nextY < 0) continue;  // 1. 범위 밖
+            if(visit[nextX][nextY]) continue;                               // 2. 이미 방문
+            if(arr[nextX][nextY] == 0) continue;                            // 3. 벽 (방문 불가)
 
-            bfs[posX][posY] = depth + 1;
-            que.push({{posX,posY}, depth + 1});
+
+            que.push({nextX,nextY,depth + 1});      // 큐에 {다음 방문 위치, 깊이} 넣기
+            visit[nextX][nextY] = true;             // 큐에 넣자마자 방문 체크
         }
-        
     }
-
 }
 
 int main(){
+    // 빠른 입출력
     ios_base::sync_with_stdio(false);
     cin.tie(NULL);
     cout.tie(NULL);
 
     cin >> n >> m;
 
-    bfs = vector<vector<int>>(n,vector<int>(m));
-    visited = vector<vector<bool>>(n,vector<bool>(m));
+    // 지도 세팅
     for(int i = 0 ; i < n ; i++){
         for(int j = 0 ; j < m ; j++){
-            cin >> q;
-            if(q==2){
-                x = i;
-                y = j;
+            cin >> type;
+            if(type == 2){      // 시작 위치 저장
+                tx = i;
+                ty = j;
             }
-            if(q==0){
-                bfs[i][j] = -1;
-            }
+            arr[i][j] = type;
         }
     }
 
-    BFS(x,y);
+    // 시작 위치에서 bfs 시작
+    bfs(tx,ty);
 
+    // 출력
+    int r;
     for(int i = 0 ; i < n ; i++){
         for(int j = 0 ; j < m ; j++){
-            if(bfs[i][j] != -1 && visited[i][j] == false) cout << -1 << " ";    // 벽이 아닌데 방문하지 못 한 경우
-            else if(bfs[i][j] == -1) cout << 0 <<" ";                           // 벽은 0으로 출력
-            else cout << bfs[i][j] <<" ";                                       // 그 외에는 깊이 출력
+            r = arr[i][j];
+
+            if(r == 0 && !visit[i][j]) cout << 0 << " ";        // 0인데 방문 못 했으면 벽
+            else if(r != 0 && !visit[i][j]) cout << -1 << " ";  // 벽이 아닌데 방문 못 했으면 -1
+            else cout << r << " ";                              // 깊이 출력
         }
         cout << "\n";
     }
+
+    return 0;
 }
